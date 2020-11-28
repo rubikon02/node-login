@@ -1,0 +1,71 @@
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    margin: 0;
+}
+header {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+header * {
+    font-size: 20px;
+}
+header ul {
+    margin: 0;
+}
+.top, .bottom {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 15px;
+}
+.bottom {
+    background-color: #ffe335;
+}
+.top {
+    background-color: #2f43a4;
+}
+.top * {
+    color: white;
+}
+header li {
+    display: inline;
+    margin: 0 5px;
+}
+main {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.bigText {
+    font-size: 120px;
+    font-weight: bold;
+    color: #d5d3d5;
+}
+.col:first-of-type {
+    margin-right: 40px;
+}
+.col > * {
+    display: block;
+    margin: 15px 0;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+#submit {
+    width: 100%;
+    padding: 7px;
+}
+#register, #login {
+    margin-top: 50px;
+}
+#colContainer {
+    display: flex;
+    justify-content: center;
+}
+#adminNoAccessHeader > .top {
+    background-color: #d12c5c;
+}

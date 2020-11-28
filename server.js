@@ -2,7 +2,9 @@ const express = require("express")
 const app = express()
 const PORT = 3000;
 const path = require("path")
-const formidable = require('formidable');
+var bodyParser = require("body-parser")
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.static('static'))
 
 
 let users = [
@@ -23,6 +25,9 @@ const allColumns = ['id', 'login', 'password', 'age', 'student', 'gender']
 let selectedColumns = ['id', 'login', 'password', 'age', 'student', 'gender']
 
 
+app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname + "/static/index.html"))
+})
 
 // login and register
 app.get("/register", function (req, res) {
@@ -34,37 +39,31 @@ app.get("/login", function (req, res) {
 })
 
 app.post("/register", function (req, res) {
-    let form = formidable({});
-    form.parse(req, function (err, fields, files) {
-        if (fields.gender === undefined || fields.login == '' || fields.password == '') {
-            res.send("Fill all fields to register")
+    console.log(req.body)
+    if (req.body.gender === undefined || req.body.login == '' || req.body.password == '') {
+        res.send("Fill all fields to register")
+        return
+    }
+    if (req.body.student === undefined)
+        req.body.student = "no"
+    for (const user of users)
+        if (user.login == req.body.login) {
+            res.send("User " + req.body.login + " already exists")
             return
         }
-        if (fields.student === undefined)
-            fields.student = "no"
-        for (const user of users)
-            if (user.login == fields.login) {
-                res.send("User " + fields.login + " already exists")
-                return
-            }
-        users.push({ id: nextID++, login: fields.login, password: fields.password, age: fields.age, student: fields.student, gender: fields.gender })
-        res.send("User " + fields.login + " registered successfully")
-    })
+    users.push({ id: nextID++, login: req.body.login, password: req.body.password, age: req.body.age, student: req.body.student, gender: req.body.gender })
+    res.send("User " + req.body.login + " registered successfully")
 })
 
 app.post("/login", function (req, res) {
-    let form = formidable({});
-    form.parse(req, function (err, fields, files) {
-        for (const user of users)
-            if (user.login == fields.login && user.password == fields.password) {
-                loggedIn = true
-                res.redirect("/admin")
-                return
-            }
-        res.send("Wrong login or password")
-    })
+    for (const user of users)
+        if (user.login == req.body.login && user.password == req.body.password) {
+            loggedIn = true
+            res.redirect("/admin")
+            return
+        }
+    res.send("Wrong login or password")
 })
-
 
 // admin
 app.get("/admin", function (req, res) {
@@ -143,11 +142,8 @@ function sortedArray(array) {
     return result
 }
 app.post("/changeSort", (req, res) => {
-    let form = formidable({})
-    form.parse(req, function (err, fields, files) {
-        sortMethod = fields.sort
-        res.redirect(307, "/sort")
-    })
+    sortMethod = req.body.sort
+    res.redirect(307, "/sort")
 })
 
 let lastAdminPage
@@ -162,14 +158,11 @@ function notLogged(res) {
 }
 
 app.post("/changeColumns", (req, res) => {
-    let form = formidable({})
-    form.parse(req, function (err, fields, files) {
-        selectedColumns = []
-        for (const key of allColumns)
-            if (fields[key])
-                selectedColumns.push(key)
-        res.redirect(307, lastAdminPage)
-    })
+    selectedColumns = []
+    for (const key of allColumns)
+        if (req.body[key])
+            selectedColumns.push(key)
+    res.redirect(307, lastAdminPage)
 })
 
 function generateColumnsSelection() {
@@ -186,7 +179,7 @@ function generateColumnsSelection() {
 
 function generateTable(array, columns = allColumns) {
     let table = "<table>"
-    const css = '<link rel="stylesheet" href="./css/table.css">'
+    const css = '<link rel="stylesheet" href="../css/table.css">'
     table += generateHeaderRow(array, columns)
     for (const object of array) {
         table += generateRow(object, columns)
@@ -224,7 +217,6 @@ function generateCell(key, value) {
 }
 
 
-app.use(express.static('static'))
 app.listen(PORT, function () {
     console.log("start serwera na porcie " + PORT)
 })
